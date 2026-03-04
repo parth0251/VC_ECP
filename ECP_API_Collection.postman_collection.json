@@ -1,0 +1,316 @@
+{
+    "info": {
+        "name": "ECP - Enterprise Car Configuration Platform",
+        "description": "All API endpoints for the ECP platform",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3001",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Health",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/health",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health"
+                            ]
+                        },
+                        "description": "Check if the API server is running"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Models",
+            "item": [
+                {
+                    "name": "Get All Models",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/models",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "models"
+                            ]
+                        },
+                        "description": "Returns all available vehicle models (Sedan, SUV, Coupe)"
+                    }
+                },
+                {
+                    "name": "Get Model By ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/models/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "models",
+                                "1"
+                            ]
+                        },
+                        "description": "Returns a single model by ID. Try: 1=Sedan, 2=SUV, 3=Coupe"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Catalog",
+            "item": [
+                {
+                    "name": "Get Catalog for Sedan (ID: 1)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/catalog/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "catalog",
+                                "1"
+                            ]
+                        },
+                        "description": "Returns full options catalog for Sedan: engines, transmissions, trims, exterior, interior, wheels, packages, rules"
+                    }
+                },
+                {
+                    "name": "Get Catalog for SUV (ID: 2)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/catalog/2",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "catalog",
+                                "2"
+                            ]
+                        },
+                        "description": "Returns full options catalog for SUV"
+                    }
+                },
+                {
+                    "name": "Get Catalog for Coupe (ID: 3)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/catalog/3",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "catalog",
+                                "3"
+                            ]
+                        },
+                        "description": "Returns full options catalog for Coupe"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Configure",
+            "item": [
+                {
+                    "name": "Validate Config - Basic (Sedan + Petrol)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"Sedan\",\n    \"engine\": \"petrol\",\n    \"transmission\": \"manual\",\n    \"trim\": \"Base\",\n    \"exterior\": { \"paint\": \"Alpine White\", \"bodyKit\": \"Standard Body Kit\", \"roofType\": \"Standard Roof\" },\n    \"interior\": { \"seatMaterial\": \"Cloth\", \"seatColor\": \"Black\", \"dashboard\": \"Standard Dashboard\", \"ambientLighting\": \"Standard Lighting\" },\n    \"wheels\": { \"name\": \"17\\\" Standard Alloy\", \"size\": 17 },\n    \"packages\": []\n  },\n  \"market\": \"US-GEN\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "validate"
+                            ]
+                        },
+                        "description": "Validates a basic Sedan config — should return valid: true"
+                    }
+                },
+                {
+                    "name": "Validate Config - California + Diesel (should fail)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"SUV\",\n    \"engine\": \"diesel\",\n    \"transmission\": \"automatic\",\n    \"trim\": \"Sport\",\n    \"exterior\": {},\n    \"interior\": {},\n    \"packages\": []\n  },\n  \"market\": \"US-CA\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "validate"
+                            ]
+                        },
+                        "description": "Diesel in California — should return valid: false with exclusion notification"
+                    }
+                },
+                {
+                    "name": "Validate Config - Electric (forced transmission)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"SUV\",\n    \"engine\": \"electric\",\n    \"transmission\": null,\n    \"trim\": \"Luxury\",\n    \"exterior\": {},\n    \"interior\": {},\n    \"packages\": [\"Winter Package\"]\n  },\n  \"market\": \"US-GEN\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "validate"
+                            ]
+                        },
+                        "description": "Electric drivetrain — should auto-select Automatic, disable Manual, exclude Tow Package, auto-include heated seats/steering from Winter Package"
+                    }
+                },
+                {
+                    "name": "Validate Config - Base Trim + Red Interior (should fail)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"Sedan\",\n    \"engine\": \"petrol\",\n    \"transmission\": \"automatic\",\n    \"trim\": \"Base\",\n    \"exterior\": {},\n    \"interior\": { \"seatColor\": \"Red\" },\n    \"packages\": []\n  },\n  \"market\": \"US-GEN\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "validate"
+                            ]
+                        },
+                        "description": "Red interior + Base trim — should return valid: false"
+                    }
+                },
+                {
+                    "name": "Get Pricing - Full Config",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"SUV\",\n    \"engine\": \"electric\",\n    \"transmission\": \"automatic\",\n    \"trim\": \"Luxury\",\n    \"exterior\": { \"paint\": \"Sapphire Blue Metallic\", \"bodyKit\": \"Aero Body Kit\", \"roofType\": \"Panoramic Sunroof\" },\n    \"interior\": { \"seatMaterial\": \"Full Leather\", \"seatColor\": \"Cognac Brown\", \"dashboard\": \"Wood Grain Trim\", \"ambientLighting\": \"Premium LED Pack\" },\n    \"wheels\": { \"name\": \"20\\\" Premium Forged\" },\n    \"packages\": [\"Technology Package\", \"Winter Package\", \"Safety Package\"]\n  },\n  \"catalog\": {\n    \"models\": [{ \"name\": \"SUV\", \"base_price\": 45000 }],\n    \"engines\": [{ \"name\": \"Electric Drive\", \"type\": \"electric\", \"price\": 5000 }],\n    \"transmissions\": [{ \"name\": \"8-Speed Automatic\", \"type\": \"automatic\", \"price\": 1500 }],\n    \"trims\": [{ \"name\": \"Luxury\", \"price\": 8000 }],\n    \"exteriorOptions\": [\n      { \"name\": \"Sapphire Blue Metallic\", \"price\": 800 },\n      { \"name\": \"Aero Body Kit\", \"price\": 3500 },\n      { \"name\": \"Panoramic Sunroof\", \"price\": 1800 }\n    ],\n    \"interiorOptions\": [\n      { \"name\": \"Full Leather\", \"price\": 2800 },\n      { \"name\": \"Cognac Brown\", \"price\": 500 },\n      { \"name\": \"Wood Grain Trim\", \"price\": 1200 },\n      { \"name\": \"Premium LED Pack\", \"price\": 1200 }\n    ],\n    \"wheels\": [{ \"name\": \"20\\\" Premium Forged\", \"price\": 3500 }],\n    \"packages\": [\n      { \"name\": \"Technology Package\", \"price\": 3500 },\n      { \"name\": \"Winter Package\", \"price\": 1800 },\n      { \"name\": \"Safety Package\", \"price\": 2500 }\n    ]\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/price",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "price"
+                            ]
+                        },
+                        "description": "Full luxury SUV config with pricing — includes EV tax credit incentive"
+                    }
+                },
+                {
+                    "name": "Get Pricing - Basic Config",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"model\": \"Sedan\",\n    \"engine\": \"petrol\",\n    \"transmission\": \"manual\",\n    \"trim\": \"Base\",\n    \"exterior\": { \"paint\": \"Alpine White\" },\n    \"interior\": { \"seatMaterial\": \"Cloth\", \"seatColor\": \"Black\" },\n    \"wheels\": { \"name\": \"17\\\" Standard Alloy\" },\n    \"packages\": []\n  },\n  \"catalog\": {\n    \"models\": [{ \"name\": \"Sedan\", \"base_price\": 35000 }],\n    \"engines\": [{ \"name\": \"2.0L Turbo Petrol\", \"type\": \"petrol\", \"price\": 0 }],\n    \"transmissions\": [{ \"name\": \"6-Speed Manual\", \"type\": \"manual\", \"price\": 0 }],\n    \"trims\": [{ \"name\": \"Base\", \"price\": 0 }],\n    \"exteriorOptions\": [{ \"name\": \"Alpine White\", \"price\": 0 }],\n    \"interiorOptions\": [\n      { \"name\": \"Cloth\", \"price\": 0 },\n      { \"name\": \"Black\", \"price\": 0 }\n    ],\n    \"wheels\": [{ \"name\": \"17\\\" Standard Alloy\", \"price\": 0 }],\n    \"packages\": []\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/configure/price",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "configure",
+                                "price"
+                            ]
+                        },
+                        "description": "Basic Sedan config — should return grandTotal of $35,000 (base only)"
+                    }
+                }
+            ]
+        }
+    ]
+}

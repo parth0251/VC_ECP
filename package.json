@@ -1,0 +1,16 @@
+{
+    "name": "ecp-platform",
+    "version": "1.0.0",
+    "description": "Enterprise Car Configuration Platform",
+    "private": true,
+    "scripts": {
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "client": "cd client && npm run dev",
+        "server": "cd server && node server.js",
+        "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+        "db:setup": "cd server && node db/setup.js"
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.0"
+    }
+}
