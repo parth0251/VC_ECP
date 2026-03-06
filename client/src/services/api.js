@@ -49,6 +49,7 @@ export const createQuote = (data) =>
         body: JSON.stringify(data),
     });
 
+export const getQuotes = () => apiFetch('/quotes');
 export const getQuote = (id) => apiFetch(`/quotes/${id}`);
 
 export const createOrder = (data) =>

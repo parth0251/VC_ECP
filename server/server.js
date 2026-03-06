@@ -5,6 +5,7 @@ const cors = require('cors');
 const modelsRouter = require('./routes/models');
 const catalogRouter = require('./routes/catalog');
 const configureRouter = require('./routes/configure');
+const quotesRouter = require('./routes/quotes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,6 +23,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/models', modelsRouter);
 app.use('/api/catalog', catalogRouter);
 app.use('/api/configure', configureRouter);
+app.use('/api/quotes', quotesRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

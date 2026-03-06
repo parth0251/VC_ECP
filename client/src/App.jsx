@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, NavLink } from 'react-router-dom';
 import { useConfig } from './context/ConfigContext';
 import { getModels } from './services/api';
-import Wizard from './components/Wizard';
+import ClassicConfiguratorPage from './pages/ClassicConfiguratorPage';
+import Configurator3DPage from './pages/Configurator3DPage';
+import SavedConfigurationsPage from './pages/SavedConfigurationsPage';
 import './App.css';
 import './styles/wizard.css';
 
 function App() {
-  const { state, actions } = useConfig();
+  const { state } = useConfig();
   const [models, setModels] = useState([]);
   const [apiStatus, setApiStatus] = useState('checking');
-  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -24,17 +26,50 @@ function App() {
     init();
   }, []);
 
-  // Once model is selected in the wizard, mark as started
-  const showWizard = started || state.model;
-
   return (
     <div className="app">
       {/* Header */}
       <header className="app-header">
-        <div className="app-logo">
-          <div className="app-logo-icon">E</div>
-          <span className="app-logo-text">ECP</span>
-          <span className="app-logo-badge">Enterprise Car Platform</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div className="app-logo">
+            <div className="app-logo-icon">E</div>
+            <span className="app-logo-text">ECP</span>
+            <span className="app-logo-badge">Enterprise Car Platform</span>
+          </div>
+          <nav style={{ display: 'flex', gap: '1rem' }}>
+            {/* <NavLink
+              to="/"
+              style={({ isActive }) => ({
+                color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+                fontWeight: isActive ? 'bold' : 'normal',
+                textDecoration: 'none'
+              })}
+              end
+            >
+              Classic Configurator
+            </NavLink> */}
+            <NavLink
+              to="/3d-configurator"
+              style={({ isActive }) => ({
+                color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+                fontWeight: isActive ? 'bold' : 'normal',
+                textDecoration: 'none'
+              })}
+            >
+              3D Configurator
+            </NavLink>
+            <NavLink
+              to="/saved-configs"
+              style={({ isActive }) => ({
+                color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+                fontWeight: isActive ? 'bold' : 'normal',
+                textDecoration: 'none',
+                marginLeft: '1rem'
+              })}
+            >
+              My Configurations
+            </NavLink>
+          </nav>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>
@@ -53,37 +88,11 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="app-main container">
-        {apiStatus === 'connected' ? (
-          showWizard ? (
-            <Wizard />
-          ) : (
-            <div className="hero">
-              <h1>Configure Your Dream Vehicle</h1>
-              <p>
-                Build your perfect car with our interactive configurator.
-                Real-time pricing, smart constraints, and a premium experience.
-              </p>
-              <button className="btn btn-primary" style={{ fontSize: '1.1rem', padding: '1rem 2.5rem' }} onClick={() => setStarted(true)}>
-                🚗 Start Configuring
-              </button>
-            </div>
-          )
-        ) : apiStatus === 'disconnected' ? (
-          <div className="hero">
-            <h1>Configure Your Dream Vehicle</h1>
-            <p className="text-error">
-              ⚠ Cannot connect to API. Make sure the server is running on port 3001.
-            </p>
-          </div>
-        ) : (
-          <div className="hero">
-            <h1>Configure Your Dream Vehicle</h1>
-            <p className="text-muted">Connecting to API...</p>
-          </div>
-        )}
-      </main>
+      <Routes>
+        <Route path="/" element={<ClassicConfiguratorPage models={models} apiStatus={apiStatus} />} />
+        <Route path="/3d-configurator" element={<Configurator3DPage />} />
+        <Route path="/saved-configs" element={<SavedConfigurationsPage />} />
+      </Routes>
     </div>
   );
 }
