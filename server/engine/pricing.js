@@ -22,15 +22,18 @@ function calculatePricing(config, catalog) {
     let optionsTotal = 0;
 
     // --- Base Price ---
-    const model = catalog.models?.find(m =>
-        m.name.toLowerCase() === (config.model || '').toLowerCase()
-    );
+    let model;
+    if (catalog.model && catalog.model.name && catalog.model.name.toLowerCase() === (config.model || '').toLowerCase()) {
+        model = catalog.model;
+    } else if (catalog.models) {
+        model = catalog.models.find(m => m.name.toLowerCase() === (config.model || '').toLowerCase());
+    }
     const basePrice = model ? parseFloat(model.base_price) : 0;
     lineItems.push({ category: 'Base Price', name: model?.name || 'No Model', price: basePrice });
 
     // --- Engine ---
     const engine = catalog.engines?.find(e =>
-        e.type === config.engine
+        e.type === config.engine || e.name === config.engine
     );
     const enginePrice = engine ? parseFloat(engine.price) : 0;
     if (engine) {
@@ -40,7 +43,7 @@ function calculatePricing(config, catalog) {
 
     // --- Transmission ---
     const transmission = catalog.transmissions?.find(t =>
-        t.type === config.transmission
+        t.type === config.transmission || t.name === config.transmission
     );
     const transmissionPrice = transmission ? parseFloat(transmission.price) : 0;
     if (transmission) {

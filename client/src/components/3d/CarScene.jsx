@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Environment, ContactShadows, Html, useProgress } from '@react-three/drei';
 import CameraRig from './CameraRig';
 import CarModel from './CarModel';
+import useConfig3DStore from '../../store/config3DStore';
 
 function Loader() {
     const { progress } = useProgress();
@@ -16,9 +17,12 @@ function Loader() {
 }
 
 function ProceduralCar({ selectedColor, type }) {
+    const { selectedDriveOrientation } = useConfig3DStore();
+
     // Colors and Materials common
     const bodyMat = <meshStandardMaterial color={selectedColor} metalness={0.8} roughness={0.2} />;
     const wheelMat = <meshStandardMaterial color="#111" roughness={0.9} />;
+    const steeringMat = <meshStandardMaterial color="#333" roughness={0.7} />;
 
     // Wheels Geometry (shared)
     const wheelY = -0.4;
@@ -47,6 +51,22 @@ function ProceduralCar({ selectedColor, type }) {
         </group>
     );
 
+    // Steering Wheel Geometry
+    const isLHD = selectedDriveOrientation === 'LHD';
+    const steeringWheelX = isLHD ? 0.6 : -0.6;
+    const steeringWheel = (
+        <group position={[steeringWheelX, 0.4, 0.5]} rotation={[Math.PI / 8, 0, 0]}>
+            <mesh castShadow>
+                <torusGeometry args={[0.2, 0.04, 16, 32]} />
+                {steeringMat}
+            </mesh>
+            <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.02, 0.02, 0.4]} />
+                {steeringMat}
+            </mesh>
+        </group>
+    );
+
     if (type === 'SUV') {
         return (
             <group position={[0, 0.6, 0]}>
@@ -60,6 +80,9 @@ function ProceduralCar({ selectedColor, type }) {
                     <boxGeometry args={[3.2, 0.8, 1.7]} />
                     {bodyMat}
                 </mesh>
+                <group position={[0.5, 0.6, 0]}>
+                    {steeringWheel}
+                </group>
                 {wheels}
             </group>
         );
@@ -78,6 +101,9 @@ function ProceduralCar({ selectedColor, type }) {
                     <boxGeometry args={[2.0, 0.5, 1.5]} />
                     {bodyMat}
                 </mesh>
+                <group position={[0.2, 0.4, 0]}>
+                    {steeringWheel}
+                </group>
                 {wheels}
             </group>
         );
@@ -96,12 +122,15 @@ function ProceduralCar({ selectedColor, type }) {
                 <boxGeometry args={[2.4, 0.6, 1.6]} />
                 {bodyMat}
             </mesh>
+            <group position={[0.4, 0.4, 0]}>
+                {steeringWheel}
+            </group>
             {wheels}
         </group>
     );
 }
 
-export default function CarScene({ modelPath, selectedColor, carType }) {
+export default function CarScene({ modelPath, selectedColor, carType, autoRotate = true }) {
     return (
         <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 1.5, 6], fov: 50 }}>
             {/* Lighting & Environment */}
@@ -120,7 +149,7 @@ export default function CarScene({ modelPath, selectedColor, carType }) {
             {/* Ground Shadow */}
             <ContactShadows resolution={1024} scale={10} blur={2} opacity={0.4} far={10} color="#000000" />
 
-            <CameraRig autoRotate={true} />
+            <CameraRig autoRotate={autoRotate} />
         </Canvas>
     );
 }

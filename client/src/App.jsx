@@ -5,6 +5,7 @@ import { getModels } from './services/api';
 import ClassicConfiguratorPage from './pages/ClassicConfiguratorPage';
 import Configurator3DPage from './pages/Configurator3DPage';
 import SavedConfigurationsPage from './pages/SavedConfigurationsPage';
+import ConfigDetailPage from './pages/ConfigDetailPage';
 import './App.css';
 import './styles/wizard.css';
 
@@ -34,7 +35,7 @@ function App() {
           <div className="app-logo">
             <div className="app-logo-icon">E</div>
             <span className="app-logo-text">ECP</span>
-            <span className="app-logo-badge">Enterprise Car Platform</span>
+            {/* <span className="app-logo-badge">Enterprise Car Platform</span> */}
           </div>
           <nav style={{ display: 'flex', gap: '1rem' }}>
             {/* <NavLink
@@ -49,7 +50,7 @@ function App() {
               Classic Configurator
             </NavLink> */}
             <NavLink
-              to="/3d-configurator"
+              to="/"
               style={({ isActive }) => ({
                 color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
                 fontWeight: isActive ? 'bold' : 'normal',
@@ -89,9 +90,10 @@ function App() {
       </header>
 
       <Routes>
-        <Route path="/" element={<ClassicConfiguratorPage models={models} apiStatus={apiStatus} />} />
+        <Route path="/" element={<Configurator3DPage />} />
         <Route path="/3d-configurator" element={<Configurator3DPage />} />
         <Route path="/saved-configs" element={<SavedConfigurationsPage />} />
+        <Route path="/config/:quoteId" element={<ConfigDetailPage />} />
       </Routes>
     </div>
   );

@@ -28,6 +28,7 @@ const useConfig3DStore = create((set, get) => ({
     selectedEngine: null,
     selectedTransmission: null,
     selectedTrim: null,
+    selectedDriveOrientation: 'LHD', // Default Left Hand Drive
     selectedExterior: null,
     selectedInterior: null,
     selectedWheels: null,
@@ -44,31 +45,58 @@ const useConfig3DStore = create((set, get) => ({
         get().runValidation({});
     },
     setStep: (step) => set({ step }),
-    setCatalog: (catalog) => set({ catalog }),
+    setCatalog: (catalog) => {
+        set({ catalog });
+        get().runValidation({});
+    },
 
     runValidation: async (newState) => {
         const state = get();
+        const extOpt = newState.selectedExterior !== undefined ? newState.selectedExterior : state.selectedExterior;
+
         const configToValidate = {
             model: state.carData?.name || null,
             engine: newState.selectedEngine?.name || state.selectedEngine?.name,
             transmission: newState.selectedTransmission?.name || state.selectedTransmission?.name,
             trim: newState.selectedTrim?.name || state.selectedTrim?.name,
             exterior: {
-                paint: state.selectedColor?.name
+                paint: state.selectedColor?.name,
+                bodyKit: extOpt?.category === 'body_kit' ? extOpt.name : undefined,
+                roofType: extOpt?.category === 'roof_type' ? extOpt.name : undefined
             },
             interior: {
-                seatMaterial: newState.selectedInterior?.name || state.selectedInterior?.name
+                seatMaterial: newState.selectedInterior?.name || state.selectedInterior?.name,
+                driveOrientation: newState.selectedDriveOrientation || state.selectedDriveOrientation
             },
-            wheels: newState.selectedWheels?.name || state.selectedWheels?.name,
+            wheels: { name: newState.selectedWheels?.name || state.selectedWheels?.name },
             packages: newState.selectedPackages ? newState.selectedPackages.map(p => p.name) : state.selectedPackages.map(p => p.name)
         };
 
         try {
-            const [valResult, priceResult] = await Promise.all([
+            let [valResult, priceResult] = await Promise.all([
                 validateConfig(configToValidate, state.market, state.catalog),
                 getConfigPricing(configToValidate, state.catalog)
             ]);
-            set({ ruleResult: valResult, pricingResult: priceResult });
+
+            // Reactively clear the selected engine if it has become disabled (e.g. market changed to CA)
+            let engineCleared = false;
+            if (state.selectedEngine && valResult?.disabledOptions?.engine) {
+                const isEngineDisabled = valResult.disabledOptions.engine.find(
+                    d => d.id === state.selectedEngine.type || d.id === state.selectedEngine.name
+                );
+                // If it is disabled, we clear it and must re-calculate the price
+                if (isEngineDisabled) {
+                    engineCleared = true;
+                    configToValidate.engine = null;
+                }
+            }
+
+            if (engineCleared) {
+                priceResult = await getConfigPricing(configToValidate, state.catalog);
+                set({ ruleResult: valResult, pricingResult: priceResult, selectedEngine: null });
+            } else {
+                set({ ruleResult: valResult, pricingResult: priceResult });
+            }
         } catch (error) {
             console.error('Validation or pricing failed', error);
         }
@@ -86,7 +114,14 @@ const useConfig3DStore = create((set, get) => ({
         set({ selectedTrim: trim });
         get().runValidation({ selectedTrim: trim });
     },
-    setExterior: (exterior) => set({ selectedExterior: exterior }), // Handled differently if it was a deep object logic
+    setDriveOrientation: (orientation) => {
+        set({ selectedDriveOrientation: orientation });
+        get().runValidation({ selectedDriveOrientation: orientation });
+    },
+    setExterior: (exterior) => {
+        set({ selectedExterior: exterior });
+        get().runValidation({ selectedExterior: exterior });
+    },
     setInterior: (interior) => {
         set({ selectedInterior: interior });
         get().runValidation({ selectedInterior: interior });
@@ -117,6 +152,7 @@ const useConfig3DStore = create((set, get) => ({
         selectedEngine: null,
         selectedTransmission: null,
         selectedTrim: null,
+        selectedDriveOrientation: 'LHD',
         selectedExterior: null,
         selectedInterior: null,
         selectedWheels: null,
